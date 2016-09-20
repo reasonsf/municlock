@@ -12,13 +12,13 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-/** 
+/** -----------------------------------
 Commenting out to deploy to Heroku
 http://stackoverflow.com/questions/28318217/port-34037-is-already-in-use-heroku-nodejs-express-websockets
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-*/
+*/ -------------------------------------
 
 /**
  * Create HTTP server.
@@ -30,9 +30,13 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
+/** --------------------------- 
+Commenting out to deploy to Heroku
+http://stackoverflow.com/questions/28318217/port-34037-is-already-in-use-heroku-nodejs-express-websockets
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+*/ ----------------------------
 
 /**
  * Normalize a port into a number, string, or false.
