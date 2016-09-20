@@ -18,19 +18,18 @@ http://stackoverflow.com/questions/28318217/port-34037-is-already-in-use-heroku-
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-*/ -------------------------------------
 
-/**
- * Create HTTP server.
- */
+
+
+// Create HTTP server.
+
 
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 
-/** --------------------------- 
+// Listen on provided port, on all network interfaces.
+
+
 Commenting out to deploy to Heroku
 http://stackoverflow.com/questions/28318217/port-34037-is-already-in-use-heroku-nodejs-express-websockets
 server.listen(port);
