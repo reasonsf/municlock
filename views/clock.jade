@@ -1,0 +1,58 @@
+//extends layout
+link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css')
+
+link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Raleway:400,300,600' type='text/css')
+
+block content
+
+    div(align="center")
+        table
+            tr
+                th(align="justify" colspan="2") MUNI L-Train Inbound Clock 
+            tbody
+                td Train ID
+                td ETA (m:s)
+            tr
+                td#busOneId 1000
+                td#busOneTime 30
+            tr
+                td#busTwoId 1001
+                td#busTwoTime 35
+#smallDiv(align="center" size="4")
+    by tryreason.com
+                    
+    script(src="/socket.io/socket.io.js")
+    script.
+        console.log ('In Jade.')
+        var socket = io();
+        socket.on ('etaEvent', function (data) {
+           //document.open();
+           var timeOne = secondsToHms(JSON.stringify(data[0].values[0].seconds));
+            var timeTwo = secondsToHms(JSON.stringify(data[0].values[1].seconds));
+            
+            var busIdOne = JSON.parse(data[0].values[0].vehicle.id);
+            var busIdTwo = JSON.parse(data[0].values[1].vehicle.id);
+            
+
+            
+            // update bus 1
+            document.getElementById("busOneId").innerHTML = busIdOne;
+            document.getElementById("busOneTime").innerHTML = timeOne;
+            
+            // update bus 2
+            document.getElementById("busTwoId").innerHTML = busIdTwo;
+            document.getElementById("busTwoTime").innerHTML = timeTwo;
+                     
+            
+            //document.close();
+        });
+        function secondsToHms(d) {
+        // from http://stackoverflow.com/questions/5539028/converting-seconds-into-hhmmss
+            d = Number(d);
+            var h = Math.floor(d / 3600);
+            var m = Math.floor(d % 3600 / 60);
+            var s = Math.floor(d % 3600 % 60);
+            return ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (s < 10 ? "0" : "") + s); 
+        };
+
+
