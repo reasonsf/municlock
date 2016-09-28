@@ -31,6 +31,9 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/clock', clock);
 
+// bower - setting up location for its folder location
+app.use('/bower_components/', express.static(__dirname + '/bower_components'));
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -132,4 +135,39 @@ function getETA() {
 };
 setInterval (getETA, 7000);
 
+
+//get Rezdy booking info
+function getReservation() {
+    // use Rezdy API to get first booking
+    // handle error
+    // return Alert string to dispaly on client
+   
+    // get current time
+    now = new Date().toISOString().substring(0,19) + 'Z';
+    console.log(now);
+    
+    //Rezdy API variables
+    var rezdyKey = 'null';
+    var request = require ('request');
+    var url = 'https://api.rezdy.com/v1/bookings?';
+    var limit = 1; // how many results to return
+    var minTourStartTime = now;
+    
+    var offset = 0;
+    request ({
+        url: url +'&limit=' + limit +'&minTourStartTime=' +minTourStartTime +'&offset=' +offset +'&apiKey=' + rezdyKey,
+        json: true
+    }, function (error, response, body) {
+        if (!error && response.statusCode === 2000) {
+            console.log(body);
+        }
+        else {
+            console.log('Got data from Rezdy.');
+            console.log(body);
+            console.log(url +'&limit=' + limit +'&minTourStartTime=' +minTourStartTime +'&offset=' +offset +'&apiKey=' + rezdyKey)
+            io.sockets.emit ('welcome', body);
+        }
+    })
+}
+//getReservation();
 module.exports = app;

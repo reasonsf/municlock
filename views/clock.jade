@@ -1,26 +1,63 @@
 //extends layout
-link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css')
+//link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css')
 
-link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Raleway:400,300,600' type='text/css')
+//link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Raleway:400,300,600' type='text/css')
+
+//- bootstrap section
+link(rel='stylesheet', href='/bower_components/bootstrap/dist/css/bootstrap.css' type='text/css')
+link(rel='stylesheet', href='/bower_components/bootstrap/dist/css/bootstrap-theme.css' type='text/css')
+
+style. 
+    body {
+        background-color: black;
+        color: white;
+        position: relative;
+        z-index: 0;
+    }
+    div.municlock {
+        background-image: url("/images/reason-logo-transparent.gif");
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+    div.alert {
+        position: fixed;
+        bottom: 0;
+        z-index: 99999;
+    }
 
 block content
+body
+    div(class="container")
+        div(class="col-xs-12")
+            div(class="list-group")
+                a(href="#" class="list-group-item active")
+                    h4.list-group-item-heading
+                        | MUNI L-Train Inbound Clock
+                    p.list-group-item-text
+                        | Made with ♥ by 
+                        span(class="label label-default") tryreason.com
+                a(href="#" class="list-group-item")    
+                    h4.list-group-item-heading
+                        div#busOneId 1000 
+                    h5.list-group-item-text
+                        div#busOneTime 0:30 
+                a(href="#" class="list-group-item")
+                    h4.list-group-item-heading
+                        div#busTwoId 2000
+                    h5.list-group-item-text
+                        div#busTwoTime 2:22
+                a(href="#" class="list-group-item")
+                    h4.list-group-item-heading
+                        div#busThreeId 3000
+                    h5.list-group-item-text
+                        div#busThreeTime 3:33
 
-    div(align="center")
-        table
-            tr
-                th(align="justify" colspan="2") MUNI L-Train Inbound Clock 
-            tbody
-                td Train ID
-                td ETA (m:s)
-            tr
-                td#busOneId 1000
-                td#busOneTime 30
-            tr
-                td#busTwoId 1001
-                td#busTwoTime 35
-#smallDiv(align="center" size="4")
-    by tryreason.com
-                    
+        //div(class="null")
+            //div(class="alert alert-success" role="alert")
+                //| John, your team is inside. Come inside if you want to win.
+
+
     script(src="/socket.io/socket.io.js")
     script.
         console.log ('In Jade.')
@@ -29,19 +66,25 @@ block content
            //document.open();
            var timeOne = secondsToHms(JSON.stringify(data[0].values[0].seconds));
             var timeTwo = secondsToHms(JSON.stringify(data[0].values[1].seconds));
+            var timeThree = secondsToHms(JSON.stringify(data[0].values[2].seconds));
             
             var busIdOne = JSON.parse(data[0].values[0].vehicle.id);
             var busIdTwo = JSON.parse(data[0].values[1].vehicle.id);
+            var busIdThree = JSON.parse(data[0].values[2].vehicle.id);
             
 
             
             // update bus 1
-            document.getElementById("busOneId").innerHTML = busIdOne;
-            document.getElementById("busOneTime").innerHTML = timeOne;
+            document.getElementById("busOneId").innerHTML = 'Train ' + busIdOne;
+            document.getElementById("busOneTime").innerHTML = timeOne + " (mm:ss)";
             
             // update bus 2
-            document.getElementById("busTwoId").innerHTML = busIdTwo;
-            document.getElementById("busTwoTime").innerHTML = timeTwo;
+            document.getElementById("busTwoId").innerHTML = 'Train ' + busIdTwo;
+            document.getElementById("busTwoTime").innerHTML = timeTwo + " (mm:ss)";
+            
+            // update bus 3
+            document.getElementById("busThreeId").innerHTML = 'Train ' + busIdThree;
+            document.getElementById("busThreeTime").innerHTML = timeThree + " (mm:ss)";
                      
             
             //document.close();
@@ -54,5 +97,12 @@ block content
             var s = Math.floor(d % 3600 % 60);
             return ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (s < 10 ? "0" : "") + s); 
         };
+
+
+
+//- Bower section
+script(src='bower_components/jquery/dist/jquery.js')
+script (src='bower_components/jquery/dist/js/bootstrap.js')
+
 
 
