@@ -134,7 +134,12 @@ function getETA() {
     
 };
 setInterval (getETA, 7000);
+setInterval (bookingNotify, 5000);
 
+function bookingNotify() {
+    io.sockets.emit ('booking', '100');
+    console.log("sending a booking");
+}
 
 //get Rezdy booking info
 function getReservation() {
