@@ -15,6 +15,8 @@ var io = require ('socket.io')(http);
 
 var restbus = require ('restbus');
 
+var moment = require('moment');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -92,26 +94,6 @@ http.listen(process.env.PORT || 5000, function () {
     
 });
 
-
-/*
-restbus.listen(process.env.PORT || 4000, function () {
-  console.log('Restbus server listening on port %d in %s mode', process.env.PORT, app.settings.env);
-});
-*/
-
-// cyclecounter
-//var cycles = 0;
-
-/*
-function increaseCounter () {
-    cycles++;
-    io.sockets.emit ('cycle', cycles);
-    console.log('App.js cycles count:' +cycles);
-};
-
-setInterval (increaseCounter, 1000);
-*/
-
 function getETA() {
     
     var request = require ('request')
@@ -129,38 +111,62 @@ function getETA() {
                 // Emitting ETA
                 io.sockets.emit ('etaEvent', body);
             }
-            //console.log(body[0].values[0].seconds)
     })
     
 };
 setInterval (getETA, 7000);
-setInterval (bookingNotify, 5000);
 
-function bookingNotify() {
-    io.sockets.emit ('booking', '100');
-    console.log("sending a booking");
+getKey(); 
+
+function getKey() {
+    // let's read private info
+    var rezdyKey;
+    fs = require('fs');
+    fs.readFile('./private/rezdy.private', 'utf8', function (err, data) {
+        if (err) {
+                return console.log(err);
+        }
+        rezdyKey = new Buffer(data.toString());
+        console.log('Key is: ' + rezdyKey);
+        var timerInterval = setInterval( function () {
+            getReservation(rezdyKey);
+        }, 9000);
+    });
+    bigRezdyKey = rezdyKey;
+    return rezdyKey;
 }
 
 //get Rezdy booking info
-function getReservation() {
+function getReservation(rezdyKey) {
     // use Rezdy API to get first booking
     // handle error
     // return Alert string to dispaly on client
    
     // get current time
     now = new Date().toISOString().substring(0,19) + 'Z';
-    console.log(now);
+    //console.log(now);
+    tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() +1);
+    tomorrow = tomorrow.toISOString().substring(0,19) + 'Z';
+    //console.log('Tomorrow is: ' +tomorrow);
     
+    console.log('getReservation() rezdyKey: ' +rezdyKey);
     //Rezdy API variables
-    var rezdyKey = 'null';
+    // rezdyKey has already been read
     var request = require ('request');
-    var url = 'https://api.rezdy.com/v1/bookings?';
-    var limit = 1; // how many results to return
+    var url = 'https://api.rezdy.com/v1/bookings?'; //'https://api.rezdy.com/v1/bookings?';
+    var limit = 0; // how many results to return
     var minTourStartTime = now;
+    var minTourEndTime = tomorrow;
+    var offset = '0';
+    var orderStatus ='CONFIRMED';
+    var productCode ='PUVF7L';
+    var fullUrl = url +'&limit=' + limit +'&minTourStartTime=' +minTourStartTime + '&offset=' +offset +'&orderStatus=' + orderStatus +'&apiKey=' + rezdyKey;
+    //var fullUrl = url +'&limit=' + limit +'&apiKey=' + rezdyKey; 
+
     
-    var offset = 0;
     request ({
-        url: url +'&limit=' + limit +'&minTourStartTime=' +minTourStartTime +'&offset=' +offset +'&apiKey=' + rezdyKey,
+        url: fullUrl,
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 2000) {
@@ -168,11 +174,51 @@ function getReservation() {
         }
         else {
             console.log('Got data from Rezdy.');
-            console.log(body);
-            console.log(url +'&limit=' + limit +'&minTourStartTime=' +minTourStartTime +'&offset=' +offset +'&apiKey=' + rezdyKey)
-            io.sockets.emit ('welcome', body);
+            //console.log(body);
+            console.log(fullUrl);
+            //io.sockets.emit ('welcome', body);
+            bookingNotify(body);
         }
     })
 }
-//getReservation();
+
+function bookingNotify(data) {
+    // loop through each data and send first bookin
+
+    console.log("*** sending a booking ");
+    //start time for local
+    //console.log(data.bookings[0].items[0].startTimeLocal);
+    // first name
+    //console.log(data.bookings[0].customer.firstName);
+    var now = moment();
+    //var nextHour = now.setHours(now.getHours()+4);
+    //nextHour = nextHour.toISOString();
+    
+    
+    // 2 hours of milliseconds
+    var timeBefore = new moment();
+    timeBefore = timeBefore.subtract(20, 'm');
+    var timeAfter = new moment();
+    timeAfter = timeAfter.add(20, 'm');
+    
+    // name of booker
+    var name
+    
+    for (var i = 0; i < data.bookings.length; i++)
+    {
+        var bookingTime = new moment(); 
+        bookingTime = moment (data.bookings[i].items[0].startTimeLocal);
+        console.log('timeBefore is: ' +timeBefore.format() + '. timeAfter is: ' +timeAfter.format() + '. bookingTime is: ' +bookingTime.format());
+        
+        if (bookingTime.isBetween(timeBefore, timeAfter)) {
+            name = data.bookings[i].customer.firstName;
+            console.log('booking time is within 10 days of now. ' +name);
+            io.sockets.emit ('booking', 'Hi ' +name +'! Come inside with your team if you want to win!');
+        }
+        else {
+        }
+
+    };
+    
+}
 module.exports = app;
