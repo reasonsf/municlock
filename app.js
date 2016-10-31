@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var clock = require ('./routes/clock');
+var progress = require('./routes/progress');
+var progressInput = require('./routes/progressInput');
 
 var app = require('express')();
 var http = require ('http').Server(app);
@@ -32,6 +34,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/clock', clock);
+app.use('/progressInput', progressInput);
+app.use('/progress', progress);
 
 // bower - setting up location for its folder location
 app.use('/bower_components/', express.static(__dirname + '/bower_components'));
@@ -130,7 +134,7 @@ function getKey() {
         console.log('Key is: ' + rezdyKey);
         var timerInterval = setInterval( function () {
             getReservation(rezdyKey);
-        }, 9000);
+        }, 5000);
     });
     bigRezdyKey = rezdyKey;
     return rezdyKey;
@@ -208,17 +212,17 @@ function bookingNotify(data) {
     {
         var bookingTime = new moment(); 
         bookingTime = moment (data.bookings[i].items[0].startTimeLocal);
-        console.log('timeBefore is: ' +timeBefore.format() + '. timeAfter is: ' +timeAfter.format() + '. bookingTime is: ' +bookingTime.format());
+        //- console.log('timeBefore is: ' +timeBefore.format() + '. timeAfter is: ' +timeAfter.format() + '. bookingTime is: ' +bookingTime.format());
         
         if (bookingTime.isBetween(timeBefore, timeAfter)) {
             name = data.bookings[i].customer.firstName;
-            console.log('booking time is within 10 days of now. ' +name);
-            io.sockets.emit ('booking', 'Hi ' +name +'! Come inside with your team if you want to win!');
+            //- console.log('booking time is within 20 minutes of now. ' +name);
+            io.sockets.emit ('booking', 'Hi ' +name +'! We have been expecting you! ' + String.fromCodePoint(0x1F601));
         }
         else {
         }
 
-    };
-    
+    }; 
 }
+
 module.exports = app;
