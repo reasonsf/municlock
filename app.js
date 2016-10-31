@@ -8,8 +8,6 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var clock = require ('./routes/clock');
-var progress = require('./routes/progress');
-var progressInput = require('./routes/progressInput');
 
 var app = require('express')();
 var http = require ('http').Server(app);
@@ -34,8 +32,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/clock', clock);
-app.use('/progressInput', progressInput);
-app.use('/progress', progress);
 
 // bower - setting up location for its folder location
 app.use('/bower_components/', express.static(__dirname + '/bower_components'));
@@ -207,22 +203,24 @@ function bookingNotify(data) {
     
     // name of booker
     var name
-    
-    for (var i = 0; i < data.bookings.length; i++)
+    // catch times when there is no internet connection and not run scripts
+    if (data.bookings.length != null)
     {
-        var bookingTime = new moment(); 
-        bookingTime = moment (data.bookings[i].items[0].startTimeLocal);
-        //- console.log('timeBefore is: ' +timeBefore.format() + '. timeAfter is: ' +timeAfter.format() + '. bookingTime is: ' +bookingTime.format());
-        
-        if (bookingTime.isBetween(timeBefore, timeAfter)) {
-            name = data.bookings[i].customer.firstName;
-            //- console.log('booking time is within 20 minutes of now. ' +name);
-            io.sockets.emit ('booking', 'Hi ' +name +'! We have been expecting you! ' + String.fromCodePoint(0x1F601));
-        }
-        else {
-        }
+        for (var i = 0; i < data.bookings.length; i++)
+        {
+            var bookingTime = new moment(); 
+            bookingTime = moment (data.bookings[i].items[0].startTimeLocal);
+            //- console.log('timeBefore is: ' +timeBefore.format() + '. timeAfter is: ' +timeAfter.format() + '. bookingTime is: ' +bookingTime.format());
 
-    }; 
+            if (bookingTime.isBetween(timeBefore, timeAfter)) {
+                name = data.bookings[i].customer.firstName;
+                //- console.log('booking time is within 20 minutes of now. ' +name);
+                io.sockets.emit ('booking', 'Hi ' +name +'! We have been expecting you! ' + String.fromCodePoint(0x1F601));
+            }
+            else {
+            }
+        }; 
+    }
 }
 
 module.exports = app;
